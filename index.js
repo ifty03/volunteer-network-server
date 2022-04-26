@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 /* all middleware */
@@ -29,10 +29,17 @@ const run = async () => {
       res.send(events);
     });
     /* post data in data base */
-    app.post("/addEvent", (req, res) => {
+    app.post("/addEvent", async (req, res) => {
       const newEvent = req.body;
-      const event = eventCollection.insertOne(newEvent);
+      const event = await eventCollection.insertOne(newEvent);
       res.send(event);
+    });
+    /* delete event  */
+    app.delete("/delete/:id", async (req, res) => {
+      const id = req.params;
+      const query = { _id: ObjectId(id) };
+      const result = await eventCollection.deleteOne(query);
+      res.send(result);
     });
   } finally {
     /*  await client.close(console.dir) */
