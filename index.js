@@ -49,7 +49,6 @@ const run = async () => {
       res.send(result);
     });
 
-    /* there is many problem please solve this */
     /* update event */
     app.put("/update/:id", async (req, res) => {
       const id = req.params;
