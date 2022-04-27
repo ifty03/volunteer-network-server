@@ -20,6 +20,7 @@ const client = new MongoClient(uri, {
 const run = async () => {
   await client.connect();
   const eventCollection = client.db("volunteerdb").collection("events");
+  const donationCollection = client.db("donationdb").collection("donate");
   try {
     /* load data from database */
     app.get("/events", async (req, res) => {
@@ -48,6 +49,7 @@ const run = async () => {
       res.send(result);
     });
 
+    /* there is many problem please solve this */
     /* update event */
     app.put("/update/:id", async (req, res) => {
       const id = req.params;
@@ -65,6 +67,21 @@ const run = async () => {
       );
       res.send(result);
     });
+    /* post donation event */
+    app.post("/donation", async (req, res) => {
+      const event = req.body;
+      const result = await donationCollection.insertOne(event);
+      res.send(result);
+    });
+
+    /* load data from donation db */
+    app.get("/donation", async (req, res) => {
+      const query = {};
+      const cursor = donationCollection.find(query);
+      const donation = await cursor.toArray();
+      res.send(donation);
+    });
+
     /* get total events */
     app.get("/totalEvents", async (req, res) => {
       const count = await eventCollection.estimatedDocumentCount();
