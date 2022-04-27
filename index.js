@@ -23,9 +23,14 @@ const run = async () => {
   try {
     /* load data from database */
     app.get("/events", async (req, res) => {
+      const page = +req.query.page;
+      const count = +req.query.count;
       const query = {};
       const cursor = eventCollection.find(query);
-      const events = await cursor.toArray();
+      const events = await cursor
+        .skip(page * count)
+        .limit(count)
+        .toArray();
       res.send(events);
     });
     /* post data in data base */
@@ -37,9 +42,34 @@ const run = async () => {
     /* delete event  */
     app.delete("/delete/:id", async (req, res) => {
       const id = req.params;
+      console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await eventCollection.deleteOne(query);
       res.send(result);
+    });
+
+    /* update event */
+    app.put("/update/:id", async (req, res) => {
+      const id = req.params;
+      console.log(id);
+      const filter = { _id: ObjectId(id) };
+      const updateEvent = req.body;
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: updateEvent,
+      };
+      const result = await eventCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+    /* get total events */
+    app.get("/totalEvents", async (req, res) => {
+      const count = await eventCollection.estimatedDocumentCount();
+
+      res.send({ count });
     });
   } finally {
     /*  await client.close(console.dir) */
@@ -47,7 +77,7 @@ const run = async () => {
 };
 run().catch(console.dir);
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.json("Hello World!");
 });
 
 app.listen(port, () => {
