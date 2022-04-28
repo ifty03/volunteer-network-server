@@ -72,6 +72,13 @@ const run = async () => {
       const result = await donationCollection.insertOne(event);
       res.send(result);
     });
+    /* delete donation  */
+    app.delete("/donation/:id", async (req, res) => {
+      const id = req.params;
+      const query = { _id: ObjectId(id) };
+      const result = await eventCollection.deleteOne(query);
+      res.send(result);
+    });
 
     /* load data from donation db */
     app.get("/donation", async (req, res) => {
